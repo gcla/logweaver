@@ -1,0 +1,93 @@
+
+## This is the default logweaver configuration, and is built-in to logweaver. Add your own
+## rules in ~/.logweaver.toml and they will take precedence.
+##
+## See https://golang.org/pkg/time/#pkg-constants for Go's idiosyncratic time parsing format.
+##
+
+[[match]]
+# [2020-09-28 18:00:36] STATUS: Step 1: Checking for Stack...
+match = '^\[(.*?)\]'
+format = '2006-01-02 15:04:05'
+
+[[match]]
+# {"App":"mycli-client","CLI":{"cmd":"mycli login","desc":"Login to the MYCLI application","args":["username=","password="]},"level":"info","msg":"Executing..","time":"2020-09-28T18:20:59Z"}
+match = '"time":"(.*)"'
+format = '2006-01-02T15:04:05Z'
+
+[[match]]
+# {"App":"mycli-client","CLI":{"cmd":"mycli login","desc":"Login to the MYCLI application","args":["username=","password="]},"level":"info","msg":"Executing..","time":"2020-09-28T18:20:59+02:00"}
+match = '"time":"(.*?)"'
+format = '2006-01-02T15:04:05+07:00'
+
+[[match]]
+# Sep 26 06:26:46 unique-237 systemd[1]: Created slice User Slice of root.
+# Year is implied as current year
+match = '^((Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)+ +[\d][\d]? +[\d]+:[\d]+:[\d]+) '
+format = 'Jan 2 15:04:05'
+
+[[match]]
+# 2020-10-05 16:19:19.464866 tpvm1: Retrieving nodes from k3s...
+match = '^([0-9-]+ +[0-9:]+)\.[0-9]+ +'
+format = '2006-01-02 15:04:05.000000'
+
+[[match]]
+# 2020-08-11 05:44:36.920 UTC [25167-5] rbac@myapp_rbac [unknown] 10-42-1-14.myapprbac-service.mycli.svc.cluster.local(60396) 0LOCATION:  exec_simple_query, postgres.c:1296
+match = '^([0-9-]+ +[0-9:]+ +[^\d]+) '
+format = '2006-01-02 15:04:05.000 MST'
+
+[[match]]
+# time="2020-10-05T16:15:11+02:00" level=info msg="Setting up DB with map[DBHOST:localhost DBNAME:myapp_system DBPASS:... DBPORT:3306 DBUSER:system]"
+match = 'time="(.*?)"'
+format = '2006-01-02T15:04:05Z'
+
+[[match]]
+# 2020-10-05 16:05:55 0 [Note] WSREP: Loading provider /usr/lib/galera/libgalera_smm.so initial position: 00000000-0000-0000-0000-000000000000:-1
+match = '^([0-9-]+ +[0-9:]+) +'
+format = '2006-01-02 15:04:05'
+
+[[match]]
+# 1018 AUDIT, 2020/10/15-23:20:40 (GMT), [SEC-3020], INFO, SECURITY, admin/admin/134.141.21.249/ssh/CLI,, SLX9150-48Y, Event: login, Status: success, Info: Successful login attempt via REMOTE, IP Addr: 134.141.21.249.
+match = ', ([0-9-/]+-[0-9:]+ ([0-9A-Za-z]+)),'
+format = '2006/01/02-15:04:05 (MST)'
+
+[[match]]
+# Dcmd logs
+# INFO   : Fri Oct 16 01:26:39 2020 : FirmwareShowActionpointWorker::addXmlTagsToFirmwareShowResponse: nodecnt = 1
+match = ': ((Mon|Tue|Wed|Thu|Fri|Sat|Sun).+?) :'
+format = 'Mon Jan 2 15:04:05 2006'
+
+[[match]]
+# confd.log
+# <INFO> 6-Oct-2020::19:35:53.826 SLX confd[2166]: audit user: admin/9 CLI done
+match = '<[A-Za-z0-9]+> ([0-9A-Za-z-]+?::[0-9:.]+?) '
+format = '2-Jan-2006::15:04:05.000'
+
+[[match]]
+# netconf.trace
+# 16-Oct-2020::00:02:39.198 **< sess:1413 write:
+match = '^([0-9]+?-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-[0-9]+?::[0-9:.]+?) '
+format = '2-Jan-2006::15:04:05.000'
+
+[[match]]
+# restlog
+# Wed Oct 14 23:05:27 2020 : 192.168.10.109  admin   HTTP/1.1 GET  /rest/config/running/interface/ve    200 OK
+match = '^((Mon|Tue|Wed|Thu|Fri|Sat|Sun) [A-Za-z0-9: ]+?) : '
+format = 'Mon Jan 2 15:04:05 2006'
+
+[[match]]
+# lastlog (last command)
+# gcla     pts/9        :pts/0:S.8       Wed Jun 24 00:40 - 11:18  (10:37)
+match = ' ((Mon|Tue|Wed|Thu|Fri|Sat|Sun) [A-Za-z0-9: ]+?) - '
+format = 'Mon Jan 2 15:04'
+
+[[match]]
+# appid.log
+# 411912  1516299661909   Analytics Engine Contact Status.6.Event     ---     ---     192.168.20.153  Contact Established     Contact established with Analytics Engine 192.168.20.153 'Analyics Beta' 
+match = '^[0-9]+?\s+?(1[4-6][0-9]{11})\s'
+
+[[match]]
+# server.log
+# 2018-08-28 10:10:04,337 INFO  [com.myapp.api.ServerInfoLogger] Server shutting down, log redirected to: /usr/local/myapp/appdata/logs/shutdown.log
+match = '^([0-9-]+ +[0-9:]+),'
+format = '2006-01-02 15:04:05'

@@ -1,0 +1,8 @@
+
+## Customize this file with rules like the one below. These rules will
+## take precedence over those built-in to logweaver.
+
+# [[match]]
+# match = '^\[(.*?)\]'
+# format = '2006-01-02 15:04:05'
+
