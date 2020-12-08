@@ -393,7 +393,7 @@ func cmain() int {
 			}
 		}
 
-		breader := bufio.NewReader(arg.handle)
+		breader := bufio.NewReaderSize(arg.handle, 65536*8)
 		reader = breader
 
 		testBytes, err := breader.Peek(2) //read 2 bytes
@@ -407,10 +407,13 @@ func cmain() int {
 			reader = greader
 		}
 
+		sc := bufio.NewScanner(reader)
+		sc.Buffer(make([]byte, 65536*16), 65536*16)
+
 		state = append(state, State{
 			filename: arg.name,
 			basename: filepath.Base(arg.name),
-			scanner:  bufio.NewScanner(reader),
+			scanner:  sc,
 			reIdx:    -1,
 		})
 	}
