@@ -22,6 +22,23 @@ go get github.com/gcla/logweaver/cmd/logweaver
 ```
 Then add ```~/go/bin/``` to your ```PATH```.
 
+### From Source
+
+If you want to rebuild the built-in rules too, you can compile from source. First fetch `statik`, a tool for embedding assets in Go binaries
+
+```bash
+go get github.com/rakyll/statik
+```
+
+Then rebuild logweaver:
+
+```bash
+git clone https://github.com/gcla/logweaver
+cd logweaver
+go generate ./...
+go install ./...
+```
+
 ## Quick Start
 
 Merge `syslog` and `auth.log` chronologically:
