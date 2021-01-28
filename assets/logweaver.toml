@@ -96,3 +96,9 @@ match = '^[0-9]+?\s+?(1[4-6][0-9]{11})\s'
 # 2018-08-28 10:10:04,337 INFO  [com.myapp.api.ServerInfoLogger] Server shutting down, log redirected to: /usr/local/myapp/appdata/logs/shutdown.log
 match = '^([0-9-]+ +[0-9:]+),'
 format = '2006-01-02 15:04:05'
+
+[[match]]
+# keepalived
+# ++(2021-01-18 14:13:47 common.sh:13312): poll_for_k3s_ready(): local retryInterval=10
+match = '^\++\(([0-9:-]+ [0-9:]+) '
+format = '2006-01-02 15:04:05'
