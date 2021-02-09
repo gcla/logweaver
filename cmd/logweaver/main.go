@@ -40,6 +40,7 @@ See https://strftime.org/ for timestamp format syntax.
 type Flags struct {
 	Help                  bool     `long:"help" short:"h" optional:"true" optional-value:"true" description:"Show this help message."`
 	UseFullname           bool     `long:"show-path" short:"f" optional:"true" optional-value:"true" description:"Use full path of log file in output."`
+	FilenameEveryLine     bool     `long:"filename-every-line" short:"l" optional:"true" optional-value:"true" description:"Show the current log filename on every line."`
 	TimeFormat1           bool     `long:"full-timestamp" short:"1" description:"Use a fuller timestamp format (%d/%b/%Y:%H:%M:%S %z)."`
 	TimeFormat2           bool     `long:"short-timestamp" short:"2" description:"Use a short timestamp format (%T)."`
 	TimeFormat            string   `long:"time-format" short:"t" description:"strftime-compatible string to use when printing out timestamps."`
@@ -657,7 +658,7 @@ func cmain() int {
 		// Normalize to UTC
 		tmArg = timeFmt.FormatString(state[0].tm.In(loc))
 
-		if state[0].continuation || lastFile == state[0].filename {
+		if (state[0].continuation || lastFile == state[0].filename) && !opts.FilenameEveryLine {
 			logFileArg = ""
 		} else {
 			if !opts.UseFullname {
