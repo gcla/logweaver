@@ -12,7 +12,7 @@ format = '2006-01-02 15:04:05'
 
 [[match]]
 # {"App":"mycli-client","CLI":{"cmd":"mycli login","desc":"Login to the MYCLI application","args":["username=","password="]},"level":"info","msg":"Executing..","time":"2020-09-28T18:20:59Z"}
-match = '"@?time":"(.*)"'
+match = '"@?time":"(.*?)"'
 format = '2006-01-02T15:04:05Z'
 
 [[match]]
