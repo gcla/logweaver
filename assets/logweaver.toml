@@ -6,6 +6,11 @@
 ##
 
 [[match]]
+# +(2021-02-20T00:53:15.075770 PST common.sh:2565): initialize_deployment_global_env(): [[ 0 = \1 ]]
+match = '^\++\((.*? [A-Z]+?) '
+format = '2006-01-02T15:04:05.000000 MST'
+
+[[match]]
 # [2020-09-28 18:00:36] STATUS: Step 1: Checking for Stack...
 match = '^\[(.*?)\]'
 format = '2006-01-02 15:04:05'
