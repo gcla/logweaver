@@ -55,6 +55,8 @@ type Flags struct {
 	AltStyle              bool     `long:"alt-style" short:"G" optional:"true" optional-value:"true" description:"Log file on a separate line; time-stamp is a prefix."`
 	Separator             bool     `long:"separator" short:"s" optional:"true" optional-value:"true" description:"Print a separator between different log files."`
 	After                 *string  `long:"after" short:"a" optional:"false" description:"Show only log entries after this point in time."`
+	Offset                []string `long:"offset" short:"o" optional:"false" description:"Offset these files by this +ve duration e.g. 10s,foo.log."`
+	NegOffset             []string `long:"negative-offset" short:"m" optional:"false" description:"Offset these files by this -ve duration e.g. 10s,foo.log."`
 	TimeZone              string   `long:"timezone" short:"z" optional:"true" default:"UTC" description:"Display timestamps relative to this timezone."`
 	Logs                  struct {
 		FilesAndDirs []string `value-name:"<files-and-dirs>" description:"Log files to process. Directories read recursively."`
@@ -75,6 +77,7 @@ type State struct {
 	filename       string         // e.g. /var/log/keepalived.log
 	basename       string         // e.g. keepalived.log (compute once)
 	scanner        *bufio.Scanner // for reading the log file line by line
+	offset         time.Duration  // the specified time offset for this file
 	line           string         // the current line, maybe with the timestamp replaced by a short token
 	eof            bool           // true if we've reached eof - log file will then be dropped by main loop
 	haveLine       bool           // false if next time round the loop, we need to scan for a new line (i.e. we just processed the last line)
@@ -197,6 +200,45 @@ func cmain() int {
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error: did not understand --after argument '%s': %v\n", *opts.After, err)
 			return 1
+		}
+	}
+
+	offsetsByFile := make(map[string]time.Duration)
+	parseOffset := func(neg bool, offSpec string) int {
+		spl := strings.SplitN(offSpec, ",", 2)
+		if len(spl) != 2 {
+			fmt.Fprintf(os.Stderr, "Error: unexpected offset argument '%s'\n", offSpec)
+			return 1
+		}
+		off, err := time.ParseDuration(spl[0])
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: unexpected duration argument '%s': %v\n", spl[0], err)
+			return 1
+		}
+		if neg {
+			off = -off
+		}
+		ofiles := strings.Split(spl[1], ":")
+		for _, ofile := range ofiles {
+			offsetsByFile[ofile] = off
+		}
+		return 0
+	}
+
+	if len(opts.Offset) != 0 {
+		for _, offSpec := range opts.Offset {
+			ret := parseOffset(false, offSpec)
+			if ret == 1 {
+				return ret
+			}
+		}
+	}
+	if len(opts.NegOffset) != 0 {
+		for _, offSpec := range opts.NegOffset {
+			ret := parseOffset(true, offSpec)
+			if ret == 1 {
+				return ret
+			}
 		}
 	}
 
@@ -415,6 +457,7 @@ func cmain() int {
 			filename: arg.name,
 			basename: filepath.Base(arg.name),
 			scanner:  sc,
+			offset:   offsetsByFile[arg.name],
 			reIdx:    -1,
 		})
 	}
@@ -537,6 +580,7 @@ func cmain() int {
 								ln := state[si].line[matches[2]:matches[3]]
 								tm, err = parseTimestampFromMatch(&conf.Match[state[si].reIdx], &ln)
 								if err == nil {
+									tm = tm.Add(state[si].offset)
 									if tm.After(startAfter) {
 										state[si].newEnough = true
 										foundTimestampInLine = true
@@ -594,6 +638,7 @@ func cmain() int {
 
 									if err == nil {
 										state[si].reIdx = mi
+										tm = tm.Add(state[si].offset)
 										if tm.After(startAfter) {
 											foundTimestampInLine = true
 											state[si].newEnough = true
